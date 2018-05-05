@@ -1,0 +1,108 @@
+package com.playgirl.nth.animetv.home_screen.header;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.playgirl.nth.animetv.R;
+import com.playgirl.nth.animetv.data.remote.api.ApiService;
+import com.playgirl.nth.animetv.data.remote.api.ApiUtils;
+import com.playgirl.nth.animetv.data.remote.model.Item;
+import com.playgirl.nth.animetv.data.remote.model.VideoData;
+import com.playgirl.nth.animetv.entity.VideoInfo;
+
+import java.awt.font.TextAttribute;
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+/**
+ * Created by nguye on 4/25/2018.
+ */
+
+public class FragmentVideo extends Fragment {
+
+    String TAG = "FragmentVideo";
+    VideoInfo videoInfo = new VideoInfo();
+    VideoData videoData;
+    ApiService apiService;
+
+    public static FragmentVideo newInstance(VideoInfo videoInfo) {
+        Log.d("FragmentVideo", "newInstance");
+        FragmentVideo fragmentVideo = new FragmentVideo();
+        fragmentVideo.setVideoInfo(videoInfo);
+        return fragmentVideo;
+    }
+
+    public VideoInfo getVideoInfo() {
+        return videoInfo;
+    }
+
+    public void setVideoInfo(VideoInfo videoInfo) {
+        this.videoInfo = videoInfo;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onCreat");
+        Log.d(TAG, "video id : " + videoInfo.getId());
+
+        super.onCreate(savedInstanceState);
+    }
+
+
+    ImageView img;
+    TextView txtName;
+    TextView txtDes;
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        apiService = (ApiService) ApiUtils.getApiService();
+
+        String url = "videos?part=snippet%2CcontentDetails%2Cstatistics&key=AIzaSyB5Jgo4jTYPq5Nep-7k2KqQCHjV4wbWC-w&id=" +videoInfo.getId();
+        apiService.getVideoData(url).enqueue(new Callback<VideoData>() {
+            @Override
+            public void onResponse(Call<VideoData> call, Response<VideoData> response) {
+                Item item = response.body().getItems().get(0);
+                videoInfo.setName(item.getSnippet().getTitle());
+                videoInfo.setDes(item.getSnippet().getDescription());
+                videoInfo.setThumbUrl(item.getSnippet().getThumbnails().getMedium().getUrl());
+                Log.d(TAG,"oncreat thumb : " + videoInfo.getThumbUrl());
+
+            }
+
+            @Override
+            public void onFailure(Call<VideoData> call, Throwable t) {
+
+            }
+        });
+
+
+        Log.d(TAG, "onCreateView");
+        View view = inflater.inflate(R.layout.header, container, false);
+        img = view.findViewById(R.id.img_thumb);
+        txtName = (TextView) view.findViewById(R.id.txt_film_name);
+        txtDes = (TextView) view.findViewById(R.id.film_des);
+
+
+        Log.d(TAG,"onCreateView title : " + videoInfo.getName());
+        Log.d(TAG,"onCreateView url thumb : " + videoInfo.getThumbUrl());
+
+        txtName.setText(videoInfo.getName());
+        txtDes.setText(videoInfo.getDes());
+        Glide.with(getContext()).load(videoInfo.getThumbUrl()).into(img);
+        return view;
+    }
+
+}

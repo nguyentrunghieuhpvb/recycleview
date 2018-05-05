@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "132637993069",
+    "firebase_url": "https://animetv-c9911.firebaseio.com",
+    "project_id": "animetv-c9911",
+    "storage_bucket": "animetv-c9911.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132637993069:android:693475d091b0b2d0",
+        "android_client_info": {
+          "package_name": "com.playgirl.nth.animetv"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "132637993069-8vti5gss0d0toff1fols2ra585sqbg2s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsDtKMGLlaZxojfDw7Kw37dowd5QfBk-w"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

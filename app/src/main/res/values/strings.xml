@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">AnimeTv</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="YoutubeDeveloperKey">AIzaSyDhEeq_FYAdCzMMSigmMcRwF_nQEhUXS-0</string>
+    <string name="title_activity_category_detail_acivity">CategoryDetailAcivity</string>
+
+
+</resources>
