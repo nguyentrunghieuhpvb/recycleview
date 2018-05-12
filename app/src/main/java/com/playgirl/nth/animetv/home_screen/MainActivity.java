@@ -1,5 +1,7 @@
 package com.playgirl.nth.animetv.home_screen;
 
+import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +10,7 @@ import android.support.v4.view.ViewPager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,8 +20,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +36,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 import com.playgirl.nth.animetv.R;
+import com.playgirl.nth.animetv.detail.CategoryDetailActivity;
+import com.playgirl.nth.animetv.detail.PlayVideoActivity;
 import com.playgirl.nth.animetv.entity.VideoInfo;
 import com.playgirl.nth.animetv.home_screen.content.AdapterListVideo;
 import com.playgirl.nth.animetv.home_screen.header.FragmentVideo;
@@ -39,14 +51,20 @@ import cn.trinea.android.view.autoscrollviewpager.AutoScrollViewPager;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+
     String TAG = "MainActivity";
+    Dialog dialog;
     AutoScrollViewPager viewPager;
     PageIndicatorView pageIndicatorView;
     RecyclerView recyMain;
-    MaterialSearchView searchView;
+
+
+    EditText edtFeedBack;
+    ImageView imgSendFeedBack;
+
     ArrayList<Fragment> listFragmentSlide = new ArrayList<>();
     ArrayList<VideoInfo> listHeaderVideo = new ArrayList<>();
-    String listCategory[] = {"Hot", "TopComent", "Action", "Funny"};
+    String listCategory[] = {"Hot", "TopComment", "Action", "Funny"};
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("header");
@@ -57,7 +75,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -86,7 +103,40 @@ public class MainActivity extends AppCompatActivity
 
         setHeader();
         setListContentVideo();
-        setSearchView();
+        setDialogFeedBack();
+    }
+
+    private void setDialogFeedBack() {
+        dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.send_feed_back);
+
+        imgSendFeedBack = dialog.findViewById(R.id.img_send_feedback);
+        edtFeedBack = dialog.findViewById(R.id.edt_feed_back);
+
+        imgSendFeedBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = edtFeedBack.getText().toString();
+                DatabaseReference myRef1 = database.getReference("FeedBack");
+                if (text.length() < 10) {
+                    Toast.makeText(MainActivity.this, "Write feed back content before", Toast.LENGTH_LONG).show();
+                } else {
+                    myRef1.child(text).setValue(text, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                            if (databaseError == null) {
+//                                Toast.makeText(MainActivity.this, "send feed back fail. Let try this again", Toast.LENGTH_LONG).show();
+//                            } else {
+                                Toast.makeText(MainActivity.this, "Suscess. Thanks you for your feed back ", Toast.LENGTH_LONG).show();
+                                dialog.hide();
+//                            }
+                        }
+                    });
+                }
+
+            }
+        });
     }
 
     @Override
@@ -95,32 +145,7 @@ public class MainActivity extends AppCompatActivity
         Glide.with(getApplicationContext()).pauseRequests();
     }
 
-    private void setSearchView() {
-        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //Do some magic
-                return false;
-            }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                //Do some magic
-                return false;
-            }
-        });
-
-        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
-            @Override
-            public void onSearchViewShown() {
-                //Do some magic
-            }
-            @Override
-            public void onSearchViewClosed() {
-                //Do some magic
-            }
-        });
-    }
     void setHeader() {
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -133,9 +158,7 @@ public class MainActivity extends AppCompatActivity
                     FragmentVideo fv = FragmentVideo.newInstance(videoInfo);
                     listFragmentSlide.add(fv);
                 }
-
                 Log.d("xxxx", "size : " + listFragmentSlide.size());
-
                 final AdapterAutoViewPaper adaper = new AdapterAutoViewPaper(getSupportFragmentManager(), listFragmentSlide);
                 viewPager.setAdapter(adaper);
                 viewPager.setInterval(5000);
@@ -156,7 +179,6 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onPageSelected(int position) {
-
                 pageIndicatorView.setSelection(position);
             }
 
@@ -165,32 +187,23 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-
     private void setListContentVideo() {
         AdapterListVideo adapterListVideo = new AdapterListVideo(MainActivity.this, listCategory);
         recyMain.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         recyMain.setAdapter(adapterListVideo);
-
     }
 
-
     private void init() {
-        searchView = (MaterialSearchView) findViewById(R.id.search_view);
+//        mSwipeRefreshLayout = findViewById(R.id.)
         viewPager = (AutoScrollViewPager) findViewById(R.id.view_pager);
         pageIndicatorView = findViewById(R.id.pageIndicatorView);
         recyMain = (RecyclerView) findViewById(R.id.recy_main);
+
     }
 
 
     @Override
     public void onBackPressed() {
-
-        if (searchView.isSearchOpen()) {
-            searchView.closeSearch();
-        } else {
-            super.onBackPressed();
-        }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -198,16 +211,6 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search, menu);
-
-        MenuItem item = menu.findItem(R.id.action_search);
-        searchView.setMenuItem(item);
-
-        return true;
-    }
-
 
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -216,22 +219,20 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        if (id == R.id.nav_rate) {
 
         } else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_feedback) {
+            dialog.show();
+            Window window = dialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

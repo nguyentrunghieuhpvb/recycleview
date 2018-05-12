@@ -54,10 +54,6 @@
 
             </android.support.v7.widget.Toolbar>
 
-            <com.miguelcatalan.materialsearchview.MaterialSearchView
-                android:id="@+id/search_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
         </FrameLayout>
 
 
@@ -67,9 +63,9 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <include layout="@layout/content_main" />
     </android.support.v4.widget.NestedScrollView>
+
 
 
 </android.support.design.widget.CoordinatorLayout>

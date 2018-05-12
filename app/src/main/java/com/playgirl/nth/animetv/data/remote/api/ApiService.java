@@ -19,6 +19,7 @@ public interface ApiService {
     @GET
     Call<VideoData> getVideoData(@Url String url);
 
+    // next vs search are same
     @GET
     Call<VideoDataNextVideo> getNextVideoData(@Url String url);
 }

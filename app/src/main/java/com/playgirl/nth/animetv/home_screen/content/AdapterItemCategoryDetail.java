@@ -85,13 +85,18 @@ public class AdapterItemCategoryDetail extends RecyclerView.Adapter<RecyclerView
         apiService.getVideoData(url).enqueue(new Callback<VideoData>() {
             @Override
             public void onResponse(Call<VideoData> call, Response<VideoData> response) {
-                Item item = response.body().getItems().get(0);
-                videoInfo.setName(item.getSnippet().getTitle());
-                videoInfo.setDes(item.getSnippet().getDescription());
-                videoInfo.setThumbUrl(item.getSnippet().getThumbnails().getMedium().getUrl());
-                Log.d(TAG, "title : " + item.getSnippet().getTitle());
-                videoViewHolder.txtName.setText(videoInfo.getName());
-                Glide.with(context).load(videoInfo.getThumbUrl()).into(videoViewHolder.imgThumb);
+                try{
+                    Item item = response.body().getItems().get(0);
+                    videoInfo.setName(item.getSnippet().getTitle());
+                    videoInfo.setDes(item.getSnippet().getDescription());
+                    videoInfo.setThumbUrl(item.getSnippet().getThumbnails().getMedium().getUrl());
+                    Log.d(TAG, "title : " + item.getSnippet().getTitle());
+                    videoViewHolder.txtName.setText(videoInfo.getName());
+                    Glide.with(context).load(videoInfo.getThumbUrl()).into(videoViewHolder.imgThumb);
+                }catch (Exception e){
+
+                }
+
             }
 
             @Override

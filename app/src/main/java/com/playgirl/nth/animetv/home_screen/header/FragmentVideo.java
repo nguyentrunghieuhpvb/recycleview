@@ -1,7 +1,9 @@
 package com.playgirl.nth.animetv.home_screen.header;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +18,9 @@ import com.playgirl.nth.animetv.data.remote.api.ApiService;
 import com.playgirl.nth.animetv.data.remote.api.ApiUtils;
 import com.playgirl.nth.animetv.data.remote.model.Item;
 import com.playgirl.nth.animetv.data.remote.model.VideoData;
+import com.playgirl.nth.animetv.detail.PlayVideoActivity;
 import com.playgirl.nth.animetv.entity.VideoInfo;
+import com.playgirl.nth.animetv.utils.Constance;
 
 import java.awt.font.TextAttribute;
 import java.util.ArrayList;
@@ -35,6 +39,7 @@ public class FragmentVideo extends Fragment {
     VideoInfo videoInfo = new VideoInfo();
     VideoData videoData;
     ApiService apiService;
+    ConstraintLayout layoutHeader;
 
     public static FragmentVideo newInstance(VideoInfo videoInfo) {
         Log.d("FragmentVideo", "newInstance");
@@ -53,9 +58,24 @@ public class FragmentVideo extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreat");
-        Log.d(TAG, "video id : " + videoInfo.getId());
+        Log.d("FragmentVideo", "onCreate");
+        apiService = (ApiService) ApiUtils.getApiService();
+        String url = "videos?part=snippet%2CcontentDetails%2Cstatistics&key=AIzaSyB5Jgo4jTYPq5Nep-7k2KqQCHjV4wbWC-w&id=" + videoInfo.getId();
+        apiService.getVideoData(url).enqueue(new Callback<VideoData>() {
+            @Override
+            public void onResponse(Call<VideoData> call, Response<VideoData> response) {
+                Item item = response.body().getItems().get(0);
+                videoInfo.setName(item.getSnippet().getTitle());
+                videoInfo.setDes(item.getSnippet().getDescription());
+                videoInfo.setThumbUrl(item.getSnippet().getThumbnails().getMedium().getUrl());
+                Log.d(TAG, "oncreat thumb : " + videoInfo.getThumbUrl());
+            }
 
+            @Override
+            public void onFailure(Call<VideoData> call, Throwable t) {
+
+            }
+        });
         super.onCreate(savedInstanceState);
     }
 
@@ -68,40 +88,25 @@ public class FragmentVideo extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        apiService = (ApiService) ApiUtils.getApiService();
+        Log.d("FragmentVideo", "onCreateView");
 
-        String url = "videos?part=snippet%2CcontentDetails%2Cstatistics&key=AIzaSyB5Jgo4jTYPq5Nep-7k2KqQCHjV4wbWC-w&id=" +videoInfo.getId();
-        apiService.getVideoData(url).enqueue(new Callback<VideoData>() {
-            @Override
-            public void onResponse(Call<VideoData> call, Response<VideoData> response) {
-                Item item = response.body().getItems().get(0);
-                videoInfo.setName(item.getSnippet().getTitle());
-                videoInfo.setDes(item.getSnippet().getDescription());
-                videoInfo.setThumbUrl(item.getSnippet().getThumbnails().getMedium().getUrl());
-                Log.d(TAG,"oncreat thumb : " + videoInfo.getThumbUrl());
-
-            }
-
-            @Override
-            public void onFailure(Call<VideoData> call, Throwable t) {
-
-            }
-        });
-
-
-        Log.d(TAG, "onCreateView");
         View view = inflater.inflate(R.layout.header, container, false);
+        layoutHeader = view.findViewById(R.id.layout_header);
         img = view.findViewById(R.id.img_thumb);
         txtName = (TextView) view.findViewById(R.id.txt_film_name);
         txtDes = (TextView) view.findViewById(R.id.film_des);
-
-
-        Log.d(TAG,"onCreateView title : " + videoInfo.getName());
-        Log.d(TAG,"onCreateView url thumb : " + videoInfo.getThumbUrl());
-
         txtName.setText(videoInfo.getName());
         txtDes.setText(videoInfo.getDes());
         Glide.with(getContext()).load(videoInfo.getThumbUrl()).into(img);
+
+        layoutHeader.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), PlayVideoActivity.class);
+                intent.putExtra(Constance.VIDEO_INFO, videoInfo);
+                getContext().startActivity(intent);
+            }
+        });
         return view;
     }
 

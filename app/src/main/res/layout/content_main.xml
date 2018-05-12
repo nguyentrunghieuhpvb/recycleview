@@ -30,12 +30,11 @@
         app:piv_viewPager="@id/view_pager"
         attrs:piv_radius="8dp" />
 
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recy_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/view_pager" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recy_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/view_pager" />
 
 
 </RelativeLayout>

@@ -8,5 +8,6 @@
     <string name="YoutubeDeveloperKey">AIzaSyDhEeq_FYAdCzMMSigmMcRwF_nQEhUXS-0</string>
     <string name="title_activity_category_detail_acivity">CategoryDetailAcivity</string>
 
-
+    <string name="banner">ca-app-pub-2280976681714988/1208018628</string>
+    <string name="inner">ca-app-pub-2280976681714988/6626074256</string>
 </resources>
